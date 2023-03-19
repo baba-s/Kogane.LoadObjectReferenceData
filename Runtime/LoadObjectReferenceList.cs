@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Kogane
@@ -14,6 +15,11 @@ namespace Kogane
         // 変数
         //================================================================================
         private readonly Dictionary<string, LoadObjectReferenceData<T>> m_dictionary = new();
+
+        //================================================================================
+        // プロパティ
+        //================================================================================
+        public int Count => m_dictionary.Count;
 
         //================================================================================
         // 関数
@@ -33,9 +39,18 @@ namespace Kogane
         /// <summary>
         /// 指定されたアセットのパスに紐づく参照カウンタを返します
         /// </summary>
+        [CanBeNull]
         public LoadObjectReferenceData<T> Get( string assetPath )
         {
-            return m_dictionary[ assetPath ];
+            // 高速でエージングテストしている時に以下の例外が出ることがあったため
+            // 念の為、キーの存在をチェックしています
+            // KeyNotFoundException: The given key 'XXXX' was not present in the dictionary.
+            // System.Collections.Generic.Dictionary`2[TKey,TValue].get_Item (TKey key) (at <f64c40317fe34259bdfbc41d7b5cbc96>:0)
+            // Kogane.LoadObjectReferenceList`1[T].Get (System.String assetPath) (at UnityProject/Packages/Kogane.LoadObjectReferenceData/Runtime/LoadObjectReferenceList.cs:38)
+            return m_dictionary.ContainsKey( assetPath )
+                    ? m_dictionary[ assetPath ]
+                    : null
+                ;
         }
 
         /// <summary>

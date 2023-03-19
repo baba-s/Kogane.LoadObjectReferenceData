@@ -84,11 +84,20 @@ namespace Kogane
         /// </summary>
         public bool OnUnload()
         {
-            m_count--;
-            if ( 0 < m_count ) return false;
-            m_onUnload?.Invoke( m_object );
-            m_object = null;
-            return true;
+            try
+            {
+                m_count--;
+                if ( 0 < m_count ) return false;
+                m_onUnload?.Invoke( m_object );
+                m_object = null;
+                return true;
+            }
+            // 念のため NullReferenceException が発生したら握りつぶす
+            // （握りつぶしてもおそらく問題はないため）
+            catch ( NullReferenceException )
+            {
+                return false;
+            }
         }
 
         /// <summary>
